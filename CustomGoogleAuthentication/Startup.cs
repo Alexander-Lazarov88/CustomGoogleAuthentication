@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CustomGoogleAuthentication.Areas.Identity;
 using CustomGoogleAuthentication.Data;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.CookiePolicy;
 
 namespace CustomGoogleAuthentication
 {
@@ -32,10 +34,22 @@ namespace CustomGoogleAuthentication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                options.UseSqlServer(Environment.GetEnvironmentVariable(Constants.Context.ConnectionString)));
+            services.AddDefaultIdentity<IdentityUser>((opt) =>
+            {
+                opt.SignIn.RequireConfirmedEmail = false;
+                opt.User.AllowedUserNameCharacters = null;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddAuthentication()
+                .AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = Environment.GetEnvironmentVariable(Constants.Google.ClientId) ?? throw new ArgumentNullException(nameof(Constants.Google.ClientId));
+                    googleOptions.ClientSecret = Environment.GetEnvironmentVariable(Constants.Google.Secret) ?? throw new ArgumentNullException(nameof(Constants.Google.Secret));
+                    //googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
+                    //googleOptions.ClaimActions.MapJsonKey("urn:google:image", "picture");
+                });
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
@@ -59,6 +73,9 @@ namespace CustomGoogleAuthentication
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseCookiePolicy();
+            app.UseAuthentication();
 
             app.UseRouting();
 
