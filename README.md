@@ -8,7 +8,7 @@ Credits to:
 1. http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4356/Google-Authentication-in-Server-Side-Blazor.aspx
 2. https://stackoverflow.com/questions/57662442/how-to-call-a-razor-page-from-a-blazor-component-in-a-server-side-blazor-applica
 
-2.1 At this time I only use this: "remove Pages/_ViewStart.cshtml"
+2.1 At the time repository was created I only use this: "remove Pages/_ViewStart.cshtml"
   
 Important:
 To use Environment variables you must set it and restrat Visual Studio.
